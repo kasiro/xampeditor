@@ -33,6 +33,7 @@ class Editor {
 			mkdir("$PP/$name/public_html");
 			$this->addHosts($name);
 			$this->addVhosts($name);
+			system("chmod 777 -R $PP");
 			echo "проект $name Добавлен" . "\n";
 		} else {
 			echo "проект $name уже существует" . "\n";
@@ -45,6 +46,7 @@ class Editor {
 			rename("$PP/$prevName", "$PP/$name");
 			$this->renameHosts($prevName, $name);
 			$this->renameVhosts($prevName, $name);
+			system("chmod 777 -R $PP");
 			echo "проект $prevName Переименован в $name" . "\n";
 		} else {
 			echo "проект $prevName не существует" . "\n";
@@ -68,6 +70,7 @@ class Editor {
 		$PP = static::$projectPath;
 		fs::folder_copy("$PP/$prevName/public_html", "$PP/$name/public_html");
 		fs::clean("$PP/$prevName/public_html");
+		system("chmod 777 -R $PP");
 		echo "проект $prevName Перемешён в $name" . "\n";
 	}
 
