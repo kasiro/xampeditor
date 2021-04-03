@@ -64,6 +64,13 @@ class Editor {
 		}
 	}
 
+	public function moveProject($prevName, $name){
+		$PP = static::$projectPath;
+		fs::folder_copy("$PP/$prevName/public_html", "$PP/$name/public_html");
+		fs::clean("$PP/$prevName/public_html");
+		echo "проект $prevName Перемешён в $name" . "\n";
+	}
+
 	public function addHosts($name){
 		$text = static::$ip."\t".$name;
 		if (!str_contains(static::$hostsFile, $text)) {
@@ -141,10 +148,9 @@ class Editor {
 		}
 	}
 }
-$user = getenv('USER');
 Editor::$VhostsPath = '/opt/lampp/etc/extra/httpd-vhosts.conf';
 Editor::$hostsPath = '/etc/hosts';
-Editor::$projectPath = "/home/$user/www";
+Editor::$projectPath = '/home/kasiro/www';
 $editor = new Editor('127.0.1.1');
 $first  = @$argv[1];
 $second = @$argv[2];
@@ -160,5 +166,9 @@ switch ($first) {
 	
 	case 'delete':
 		$editor->deleteProject($second);
+		break;
+
+	case 'move':
+		$editor->moveProject($second, $third);
 		break;
 }
