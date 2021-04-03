@@ -1,7 +1,7 @@
 <?php
 
-import 'str';
-import 'fs';
+require 'str.php';
+require 'fs.php';
 
 class Editor {
 	public static $filePath = '';

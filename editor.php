@@ -1,6 +1,6 @@
 <?php
 
-require '/home/kasiro/Документы/projects/mphp/file_req/str.php';
+require 'str.php';
 require '/home/kasiro/Документы/projects/mphp/file_req/fs.php';
 
 class Editor {
