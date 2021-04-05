@@ -224,7 +224,7 @@ class Editor {
 Editor::$VhostsPath = '/opt/lampp/etc/extra/httpd-vhosts.conf';
 Editor::$hostsPath = '/etc/hosts';
 Editor::$projectPath = '/home/kasiro/www';
-$editor = new Editor('127.0.1.1');
+$editor = new Editor('127.0.0.1');
 $first  = @$argv[1];
 $second = @$argv[2];
 $third  = @$argv[3];
