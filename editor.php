@@ -35,6 +35,7 @@ class Editor {
 			$this->addVhosts($name);
 			system("chmod 777 -R $PP");
 			echo "проект $name Добавлен" . "\n";
+			$this->check_ok($name);
 		} else {
 			echo "проект $name уже существует" . "\n";
 		}
@@ -48,6 +49,7 @@ class Editor {
 			$this->renameVhosts($prevName, $name);
 			system("chmod 777 -R $PP");
 			echo "проект $prevName Переименован в $name" . "\n";
+			// $this->check_ok($name);
 		} else {
 			echo "проект $prevName не существует" . "\n";
 		}
@@ -61,7 +63,11 @@ class Editor {
 			$this->deleteVhosts($name);
 			rmdir("$PP/$name");
 			echo "проект $name удалён" . "\n";
+			$this->check_ok($name, 'delete');
 		} else {
+			$this->deleteHosts($name);
+			$this->deleteVhosts($name);
+			$this->check_ok($name, 'delete');
 			echo "проект $name не существует" . "\n";
 		}
 	}
@@ -101,14 +107,18 @@ class Editor {
 
 	public function deleteHosts($name){
 		$text = static::$ip."\t".$name;
-		static::$hostsFile = str_replace($text, '', static::$hostsFile);
-		static::$hostsFile = str_replace("\n\n", "\n", static::$hostsFile);
-		file_put_contents(static::$hostsPath, static::$hostsFile);
+		if (str_contains(static::$hostsFile, $name)) {
+			static::$hostsFile = str_replace($text, '', static::$hostsFile);
+			static::$hostsFile = str_replace("\n\n", "\n", static::$hostsFile);
+			file_put_contents(static::$hostsPath, static::$hostsFile);
+		}
 	}
 
 	public function addVhosts($name){
+		$PP = static::$projectPath;
 		$template = file_get_contents(__DIR__.'/template.txt');
 		$ready_template = str::sprintf2($template, [
+			'Project' => $PP,
 			'name' => $name
 		]);
 		if (!str_contains(static::$Vhosts, $ready_template)) {
@@ -119,11 +129,14 @@ class Editor {
 	}
 
 	public function renameVhosts($prevName, $name){
+		$PP = static::$projectPath;
 		$template = file_get_contents(__DIR__.'/template.txt');
 		$ready_template_prev = str::sprintf2($template, [
+			'Project' => $PP,
 			'name' => $prevName
 		]);
 		$ready_template = str::sprintf2($template, [
+			'Project' => $PP,
 			'name' => $name
 		]);
 		if (str_contains(static::$Vhosts, $ready_template_prev)) {
@@ -139,15 +152,72 @@ class Editor {
 	}
 
 	public function deleteVhosts($name){
+		$PP = static::$projectPath;
 		$template = file_get_contents(__DIR__.'/template.txt');
 		$ready_template = str::sprintf2($template, [
+			'Project' => $PP,
 			'name' => $name
 		]);
-		if (str_contains(static::$Vhosts, $ready_template)) {
+		if (str_contains(static::$Vhosts, $name)) {
 			$res = str_replace("\n\n".$ready_template, '', static::$Vhosts);
 			file_put_contents(static::$VhostsPath, $res);
 		} else {
 			echo "проект $name не существует в vhosts" . "\n";
+		}
+	}
+
+	public function check_ok($name, $action = 'add'){
+		if (!is_writable(static::$VhostsPath) || !is_writable(static::$hostsPath)){
+			exit('Нет прав');
+		}
+		sleep(3);
+		if (static::$VhostsPath) {
+			static::$Vhosts = file_get_contents(static::$VhostsPath);
+		}
+		if (static::$hostsPath) {
+			static::$hostsFile = file_get_contents(static::$hostsPath);
+		}
+		if (!str_contains(static::$hostsFile, $name)) {
+			switch ($action) {
+				case 'add':
+					echo "проект $name не добавился в hosts" . "\n";
+					break;
+				
+				case 'delete':
+					echo "$name удалился из hosts" . "\n";
+					break;
+			}
+		} else {
+			switch ($action) {
+				case 'add':
+					echo "проект $name добавился в hosts" . "\n";
+					break;
+				
+				case 'delete':
+					echo "$name не удалился из hosts" . "\n";
+					break;
+			}
+		}
+		if (!str_contains(static::$Vhosts, $name)) {
+			switch ($action) {
+				case 'add':
+					echo "проект $name не добавился в vhosts" . "\n";
+					break;
+				
+				case 'delete':
+					echo "$name удалился из vhosts" . "\n";
+					break;
+			}
+		} else {
+			switch ($action) {
+				case 'add':
+					echo "проект $name добавился в vhosts" . "\n";
+					break;
+				
+				case 'delete':
+					echo "$name не удалился из vhosts" . "\n";
+					break;
+			}
 		}
 	}
 }
@@ -160,7 +230,19 @@ $second = @$argv[2];
 $third  = @$argv[3];
 switch ($first) {
 	case 'add':
-		$editor->addProject($second);
+		switch ($second) {
+			case 'hosts':
+				$editor->addHosts($third);
+				break;
+
+			case 'vhosts':
+				$editor->addVhosts($third);
+				break;
+			
+			default:
+				$editor->addProject($second);
+				break;
+		}
 		break;
 	
 	case 'rename':

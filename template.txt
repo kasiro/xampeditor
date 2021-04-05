@@ -1,7 +1,7 @@
 <VirtualHost *:80>
-    DocumentRoot "/home/kasiro/www/%name/public_html"
+    DocumentRoot "%Project/%name/public_html"
     ServerName %name
-    <Directory "/home/kasiro/www/%name/public_html">
+    <Directory "%Project/%name/public_html">
         Options Indexes FollowSymLinks Includes ExecCGI
         AllowOverride All
         Require all granted
