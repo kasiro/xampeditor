@@ -51,7 +51,7 @@ class Editor {
 			echo "проект $prevName Переименован в $name" . "\n";
 			// $this->check_ok($name);
 		} else {
-			echo "проект $prevName не существует" . "\n";
+			echo "проект $name уже существует" . "\n";
 		}
 	}
 
