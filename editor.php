@@ -3,7 +3,35 @@
 require 'str.php';
 require 'fs.php';
 
-class Editor {
+class Projector {
+
+	public function getVhostsProjects($text, $black = []) {
+		$res = preg_match_all('/^\s{4}ServerName ([^ ]*)$/m', $text, $match);
+		if ($res) {
+			$arr = array_filter($match[1], fn($e) => !in_array($e, $black));
+			$newArr = [];
+			foreach ($arr as $el){
+				$newArr[] = $el;
+			}
+			return $newArr;
+		} else return false;
+	}
+
+	public function getHostsProjects($text, $black = []) {
+		$res = preg_match_all('/\t(.*)/m', $text, $match);
+		if ($res) {
+			$arr = array_filter($match[1], fn($e) => !in_array($e, $black));
+			$newArr = [];
+			foreach ($arr as $el){
+				$newArr[] = $el;
+			}
+			return $newArr;
+		} else return false;
+	}
+
+}
+
+class Editor extends Projector {
 	public static $VhostsPath = '';
 	public static $hostsPath = '';
 	public static $projectPath = '';
@@ -19,9 +47,21 @@ class Editor {
 		}
 		if (static::$VhostsPath) {
 			static::$Vhosts = file_get_contents(static::$VhostsPath);
+			$this->VhostsProjectList = $this->getVhostsProjects(static::$Vhosts, [
+				'localhost'
+			]);
+			// print_r($this->VhostsProjectList);
 		}
 		if (static::$hostsPath) {
 			static::$hostsFile = file_get_contents(static::$hostsPath);
+			$this->hostsProjectList = $this->getHostsProjects(static::$hostsFile, [
+				'localhost',
+				'kasiro-MS-7788'
+			]);
+			// print_r($this->hostsProjectList);
+		}
+		if ($this->VhostsProjectList == $this->hostsProjectList){
+			echo 'Projects: hosts == vhosts ('.count($this->VhostsProjectList).')' . "\n";
 		}
 		static::$ip = $ip;
 	}
@@ -123,8 +163,6 @@ class Editor {
 		]);
 		if (!str_contains(static::$Vhosts, $ready_template)) {
 			file_put_contents(static::$VhostsPath, "\n\n".$ready_template, FILE_APPEND);
-		} else {
-			echo "проект $name уже существует в vhosts" . "\n";
 		}
 	}
 
@@ -161,8 +199,6 @@ class Editor {
 		if (str_contains(static::$Vhosts, $name)) {
 			$res = str_replace("\n\n".$ready_template, '', static::$Vhosts);
 			file_put_contents(static::$VhostsPath, $res);
-		} else {
-			echo "проект $name не существует в vhosts" . "\n";
 		}
 	}
 
@@ -173,11 +209,20 @@ class Editor {
 		sleep(3);
 		if (static::$VhostsPath) {
 			static::$Vhosts = file_get_contents(static::$VhostsPath);
+			$VhostsProjectList = $this->getVhostsProjects(static::$Vhosts, [
+				'localhost'
+			]);
+			// print_r($this->VhostsProjectList);
 		}
 		if (static::$hostsPath) {
 			static::$hostsFile = file_get_contents(static::$hostsPath);
+			$hostsProjectList = $this->getHostsProjects(static::$hostsFile, [
+				'localhost',
+				'kasiro-MS-7788'
+			]);
+			// print_r($this->hostsProjectList);
 		}
-		if (!str_contains(static::$hostsFile, $name)) {
+		if (!in_array($name, $hostsProjectList) && in_array($name, $this->hostsProjectList)) {
 			switch ($action) {
 				case 'add':
 					echo "проект $name не добавился в hosts" . "\n";
@@ -188,17 +233,25 @@ class Editor {
 					break;
 			}
 		} else {
-			switch ($action) {
-				case 'add':
-					echo "проект $name добавился в hosts" . "\n";
-					break;
-				
-				case 'delete':
-					echo "$name не удалился из hosts" . "\n";
-					break;
+			if (!in_array($name, $this->hostsProjectList)) {
+				switch ($action) {					
+					case 'delete':
+						echo "$name не был в hosts" . "\n";
+						break;
+				}
+			} else {
+				switch ($action) {
+					case 'add':
+						echo "проект $name добавился в hosts" . "\n";
+						break;
+					
+					case 'delete':
+						echo "$name не удалился из hosts" . "\n";
+						break;
+				}
 			}
 		}
-		if (!str_contains(static::$Vhosts, $name)) {
+		if (!in_array($name, $VhostsProjectList) && in_array($name, $this->VhostsProjectList)) {
 			switch ($action) {
 				case 'add':
 					echo "проект $name не добавился в vhosts" . "\n";
@@ -209,14 +262,22 @@ class Editor {
 					break;
 			}
 		} else {
-			switch ($action) {
-				case 'add':
-					echo "проект $name добавился в vhosts" . "\n";
-					break;
-				
-				case 'delete':
-					echo "$name не удалился из vhosts" . "\n";
-					break;
+			if (!in_array($name, $this->VhostsProjectList)) {
+				switch ($action) {
+					case 'delete':
+						echo "$name не был в vhosts" . "\n";
+						break;
+				}
+			} else {
+				switch ($action) {
+					case 'add':
+						echo "проект $name добавился в vhosts" . "\n";
+						break;
+					
+					case 'delete':
+						echo "$name не удалился из vhosts" . "\n";
+						break;
+				}
 			}
 		}
 	}
@@ -250,10 +311,21 @@ switch ($first) {
 		break;
 	
 	case 'delete':
+	case 'remove':
 		$editor->deleteProject($second);
 		break;
 
 	case 'move':
 		$editor->moveProject($second, $third);
+		break;
+
+	case 'list':
+		$pr = array_filter(
+			scandir(Editor::$projectPath),
+			fn($e) => !in_array($e, ['.', '..'])
+		);
+		foreach ($pr as $f){
+			echo $f . "\n";
+		}
 		break;
 }
