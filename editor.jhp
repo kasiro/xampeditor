@@ -74,10 +74,10 @@ class Editor extends Projector {
 			$this->addHosts($name);
 			$this->addVhosts($name);
 			system("chmod 777 -R $PP");
-			nl "проект $name Добавлен";
+			nl "папка $name Добавлен";
 			$this->check_ok($name);
 		} else {
-			nl "проект $name уже существует";
+			nl "папка $name уже существует";
 		}
 	}
 
@@ -88,10 +88,10 @@ class Editor extends Projector {
 			$this->renameHosts($prevName, $name);
 			$this->renameVhosts($prevName, $name);
 			system("chmod 777 -R $PP");
-			nl "проект $prevName Переименован в $name";
+			nl "папка $prevName Переименован в $name";
 			// $this->check_ok($name);
 		} else {
-			nl "проект $name уже существует";
+			nl "папка $name уже существует";
 		}
 	}
 
@@ -102,13 +102,13 @@ class Editor extends Projector {
 			$this->deleteHosts($name);
 			$this->deleteVhosts($name);
 			rmdir("$PP/$name");
-			nl "проект $name удалён";
+			nl "папка $name удалён";
 			$this->check_ok($name, 'delete');
 		} else {
 			$this->deleteHosts($name);
 			$this->deleteVhosts($name);
 			$this->check_ok($name, 'delete');
-			nl "проект $name не существует";
+			nl "папка $name не существует";
 		}
 	}
 
@@ -126,7 +126,7 @@ class Editor extends Projector {
 			static::$hostsFile = str_replace("\n\n", "\n$text\n\n", static::$hostsFile);
 			file_put_contents(static::$hostsPath, static::$hostsFile);
 		} else {
-			nl "проект $name уже существует в hosts";
+			nl "$name уже существует в hosts";
 		}
 	}
 
@@ -138,10 +138,10 @@ class Editor extends Projector {
 				static::$hostsFile = str_replace($what, $text, static::$hostsFile);
 				file_put_contents(static::$hostsPath, static::$hostsFile);
 			} else {
-				nl "проект $name уже существует в hosts";
+				nl "$name уже существует в hosts";
 			}
 		} else {
-			nl "проект $prevName не существует в hosts";
+			nl "$prevName не существует в hosts";
 		}
 	}
 
@@ -182,10 +182,10 @@ class Editor extends Projector {
 				$res = str_replace($ready_template_prev, $ready_template, static::$Vhosts);
 				file_put_contents(static::$VhostsPath, $res);
 			} else {
-				nl "проект $name уже существует в vhosts";
+				nl "$name уже существует в vhosts";
 			}		
 		} else {
-			nl "проект $name не существует в vhosts";
+			nl "$name не существует в vhosts";
 		}
 	}
 
@@ -199,6 +199,53 @@ class Editor extends Projector {
 		if (str_contains(static::$Vhosts, $name)) {
 			$res = str_replace("\n\n".$ready_template, '', static::$Vhosts);
 			file_put_contents(static::$VhostsPath, $res);
+		}
+	}
+
+	public mycheck($name, $temp, $action){
+		switch ($action) {
+			case 'hosts':
+				$ProjectList = $temp;
+				$NewProjectList = $this->hostsProjectList;
+				break;
+
+			case 'vhosts':
+				$ProjectList = $temp;
+				$NewProjectList = $this->VhostsProjectList;
+				break;
+			
+			default:
+				return false;
+				break;
+		}
+		if (!in_array($name, $ProjectList) && in_array($name, $NewProjectList)) {
+			switch ($action) {
+				case 'add':
+					nl "$name не добавился в $action";
+					break;
+				
+				case 'delete':
+					nl "$name удалился из $action";
+					break;
+			}
+		} else {
+			if (!in_array($name, $NewProjectList)) {
+				switch ($action) {					
+					case 'delete':
+						nl "$name не был в $action";
+						break;
+				}
+			} else {
+				switch ($action) {
+					case 'add':
+						nl "$name добавился в $action";
+						break;
+					
+					case 'delete':
+						nl "$name не удалился из $action";
+						break;
+				}
+			}
 		}
 	}
 
@@ -222,64 +269,8 @@ class Editor extends Projector {
 			]);
 			// print_r($this->hostsProjectList);
 		}
-		if (!in_array($name, $hostsProjectList) && in_array($name, $this->hostsProjectList)) {
-			switch ($action) {
-				case 'add':
-					nl "проект $name не добавился в hosts";
-					break;
-				
-				case 'delete':
-					nl "$name удалился из hosts";
-					break;
-			}
-		} else {
-			if (!in_array($name, $this->hostsProjectList)) {
-				switch ($action) {					
-					case 'delete':
-						nl "$name не был в hosts";
-						break;
-				}
-			} else {
-				switch ($action) {
-					case 'add':
-						nl "проект $name добавился в hosts";
-						break;
-					
-					case 'delete':
-						nl "$name не удалился из hosts";
-						break;
-				}
-			}
-		}
-		if (!in_array($name, $VhostsProjectList) && in_array($name, $this->VhostsProjectList)) {
-			switch ($action) {
-				case 'add':
-					nl "проект $name не добавился в vhosts";
-					break;
-				
-				case 'delete':
-					nl "$name удалился из vhosts";
-					break;
-			}
-		} else {
-			if (!in_array($name, $this->VhostsProjectList)) {
-				switch ($action) {
-					case 'delete':
-						nl "$name не был в vhosts";
-						break;
-				}
-			} else {
-				switch ($action) {
-					case 'add':
-						nl "проект $name добавился в vhosts";
-						break;
-					
-					case 'delete':
-						nl "$name не удалился из vhosts";
-						break;
-				}
-			}
-		}
+		$this->mycheck($name, $hostsProjectList, 'hosts');
+		$this->mycheck($name, $VhostsProjectList, 'vhosts');
 	}
 }
 Editor::$VhostsPath = '/opt/lampp/etc/extra/httpd-vhosts.conf';
@@ -302,6 +293,8 @@ switch ($first) {
 			
 			default:
 				$editor->addProject($second);
+				$PP = Editor::$projectPath;
+				fs::folder_copy(__DIR__.'/templates/public_html', "$PP/$second/public_html");
 				break;
 		}
 		break;
