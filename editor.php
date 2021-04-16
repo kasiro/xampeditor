@@ -73,6 +73,7 @@ class Editor extends Projector {
 			mkdir("$PP/$name/public_html");
 			$this->addHosts($name);
 			$this->addVhosts($name);
+			fs::folder_copy(__DIR__.'/templates/public_html', "$PP/$name/public_html");
 			system("chmod 777 -R $PP");
 			echo "папка $name Добавлен" . "\n";
 			$this->check_ok($name);
@@ -273,6 +274,7 @@ class Editor extends Projector {
 		$this->mycheck($name, $VhostsProjectList, 'vhosts');
 	}
 }
+require '/home/kasiro/Документы/projects/mphp/file_req/mfunc.php';
 Editor::$VhostsPath = '/opt/lampp/etc/extra/httpd-vhosts.conf';
 Editor::$hostsPath = '/etc/hosts';
 Editor::$projectPath = '/home/kasiro/www';
@@ -292,9 +294,7 @@ switch ($first) {
 				break;
 			
 			default:
-				$editor->addProject($second);
-				$PP = Editor::$projectPath;
-				fs::folder_copy(__DIR__.'/templates/public_html', "$PP/$second/public_html");
+				$editor->addProject($second);				
 				break;
 		}
 		break;
@@ -313,10 +313,7 @@ switch ($first) {
 		break;
 
 	case 'list':
-		$pr = array_filter(
-			scandir(Editor::$projectPath),
-			fn($e) => !in_array($e, ['.', '..'])
-		);
+		$pr = jscandir(Editor::$projectPath);
 		foreach ($pr as $f){
 			echo $f . "\n";
 		}
