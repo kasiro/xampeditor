@@ -294,7 +294,7 @@ switch ($first) {
 				break;
 			
 			default:
-				$editor->addProject($second);				
+				$editor->addProject($second);
 				break;
 		}
 		break;
