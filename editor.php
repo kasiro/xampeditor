@@ -1,8 +1,5 @@
 <?php
 
-require 'str.php';
-require 'fs.php';
-
 class Projector {
 
 	public function getVhostsProjects($text, $black = []) {
@@ -274,7 +271,9 @@ class Editor extends Projector {
 		$this->mycheck($name, $VhostsProjectList, 'vhosts');
 	}
 }
-require '/home/kasiro/Документы/projects/mphp/file_req/mfunc.php';
+require './jhp_modules/mfunc.php';
+require './jhp_modules/str.php';
+require './jhp_modules/fs.php';
 Editor::$VhostsPath = '/opt/lampp/etc/extra/httpd-vhosts.conf';
 Editor::$hostsPath = '/etc/hosts';
 Editor::$projectPath = '/home/kasiro/www';

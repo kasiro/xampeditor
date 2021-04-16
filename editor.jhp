@@ -1,8 +1,5 @@
 <?php
 
-require 'str.php';
-require 'fs.php';
-
 class Projector {
 
 	public getVhostsProjects($text, $black = []) {
@@ -274,8 +271,10 @@ class Editor extends Projector {
 		$this->mycheck($name, $VhostsProjectList, 'vhosts');
 	}
 }
-import_array [
-	'mfunc'
+import_array: include [
+	'mfunc',
+	'str',
+	'fs'
 ];
 Editor::$VhostsPath = '/opt/lampp/etc/extra/httpd-vhosts.conf';
 Editor::$hostsPath = '/etc/hosts';
