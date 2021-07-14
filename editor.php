@@ -58,7 +58,7 @@ class Editor extends Projector {
 			// print_r($this->hostsProjectList);
 		}
 		if ($this->VhostsProjectList == $this->hostsProjectList){
-			echo 'Projects: hosts == vhosts ('.count($this->VhostsProjectList).')' . "\n";
+			echo 'Projects: hosts == vhosts ('.count($this->VhostsProjectList).')' . PHP_EOL;
 		}
 		static::$ip = $ip;
 	}
@@ -72,10 +72,10 @@ class Editor extends Projector {
 			$this->addVhosts($name);
 			fs::folder_copy(__DIR__.'/templates/public_html', "$PP/$name/public_html");
 			system("chmod 777 -R $PP");
-			echo "папка $name Добавлен" . "\n";
+			echo "папка $name Добавлен" . PHP_EOL;
 			$this->check_ok($name);
 		} else {
-			echo "папка $name уже существует" . "\n";
+			echo "папка $name уже существует" . PHP_EOL;
 		}
 	}
 
@@ -86,10 +86,10 @@ class Editor extends Projector {
 			$this->renameHosts($prevName, $name);
 			$this->renameVhosts($prevName, $name);
 			system("chmod 777 -R $PP");
-			echo "папка $prevName Переименован в $name" . "\n";
+			echo "папка $prevName Переименован в $name" . PHP_EOL;
 			// $this->check_ok($name);
 		} else {
-			echo "папка $name уже существует" . "\n";
+			echo "папка $name уже существует" . PHP_EOL;
 		}
 	}
 
@@ -100,13 +100,13 @@ class Editor extends Projector {
 			$this->deleteHosts($name);
 			$this->deleteVhosts($name);
 			rmdir("$PP/$name");
-			echo "папка $name удалён" . "\n";
+			echo "папка $name удалён" . PHP_EOL;
 			$this->check_ok($name, 'delete');
 		} else {
 			$this->deleteHosts($name);
 			$this->deleteVhosts($name);
 			$this->check_ok($name, 'delete');
-			echo "папка $name не существует" . "\n";
+			echo "папка $name не существует" . PHP_EOL;
 		}
 	}
 
@@ -115,7 +115,7 @@ class Editor extends Projector {
 		fs::folder_copy("$PP/$prevName/public_html", "$PP/$name/public_html");
 		fs::clean("$PP/$prevName/public_html");
 		system("chmod 777 -R $PP");
-		echo "проект $prevName Перемешён в $name" . "\n";
+		echo "проект $prevName Перемешён в $name" . PHP_EOL;
 	}
 
 	public function addHosts($name){
@@ -124,7 +124,7 @@ class Editor extends Projector {
 			static::$hostsFile = str_replace("\n\n", "\n$text\n\n", static::$hostsFile);
 			file_put_contents(static::$hostsPath, static::$hostsFile);
 		} else {
-			echo "$name уже существует в hosts" . "\n";
+			echo "$name уже существует в hosts" . PHP_EOL;
 		}
 	}
 
@@ -136,10 +136,10 @@ class Editor extends Projector {
 				static::$hostsFile = str_replace($what, $text, static::$hostsFile);
 				file_put_contents(static::$hostsPath, static::$hostsFile);
 			} else {
-				echo "$name уже существует в hosts" . "\n";
+				echo "$name уже существует в hosts" . PHP_EOL;
 			}
 		} else {
-			echo "$prevName не существует в hosts" . "\n";
+			echo "$prevName не существует в hosts" . PHP_EOL;
 		}
 	}
 
@@ -180,10 +180,10 @@ class Editor extends Projector {
 				$res = str_replace($ready_template_prev, $ready_template, static::$Vhosts);
 				file_put_contents(static::$VhostsPath, $res);
 			} else {
-				echo "$name уже существует в vhosts" . "\n";
+				echo "$name уже существует в vhosts" . PHP_EOL;
 			}		
 		} else {
-			echo "$name не существует в vhosts" . "\n";
+			echo "$name не существует в vhosts" . PHP_EOL;
 		}
 	}
 
@@ -219,28 +219,28 @@ class Editor extends Projector {
 		if (!in_array($name, $ProjectList) && in_array($name, $NewProjectList)) {
 			switch ($action) {
 				case 'add':
-					echo "$name не добавился в $action" . "\n";
+					echo "$name не добавился в $action" . PHP_EOL;
 					break;
 				
 				case 'delete':
-					echo "$name удалился из $action" . "\n";
+					echo "$name удалился из $action" . PHP_EOL;
 					break;
 			}
 		} else {
 			if (!in_array($name, $NewProjectList)) {
 				switch ($action) {					
 					case 'delete':
-						echo "$name не был в $action" . "\n";
+						echo "$name не был в $action" . PHP_EOL;
 						break;
 				}
 			} else {
 				switch ($action) {
 					case 'add':
-						echo "$name добавился в $action" . "\n";
+						echo "$name добавился в $action" . PHP_EOL;
 						break;
 					
 					case 'delete':
-						echo "$name не удалился из $action" . "\n";
+						echo "$name не удалился из $action" . PHP_EOL;
 						break;
 				}
 			}
@@ -314,7 +314,7 @@ switch ($first) {
 	case 'list':
 		$pr = jscandir(Editor::$projectPath);
 		foreach ($pr as $f){
-			echo $f . "\n";
+			echo $f . PHP_EOL;
 		}
 		break;
 }

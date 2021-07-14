@@ -8,9 +8,9 @@ if (!function_exists('is_list')) {
 
 if (!function_exists('jscandir')) {
 	function jscandir($s){
-		return array_filter(
+		return array_diff(
 			scandir($s),
-			fn($e) => !in_array($e, ['.', '..'])
+			['.', '..']
 		);
 	}
 }
